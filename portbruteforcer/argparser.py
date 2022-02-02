@@ -8,13 +8,23 @@ def argparse(argv, portmap):
                       help="specify destination port, if the service is not on default port")
     parser.add_option("-t", "--threads", action="store", type="int", dest="threads", default=8,
                       help="number of threads to lanuch (default: %default)")
-    parser.add_option("-n", "--nostore", action="store_false", dest="store_in_db", default=True,
-                      help="don't store the result of this attack in the internal databse")
-    parser.add_option("-l", "--login", action="store", type="string", dest="login", default="user",
+    parser.add_option("-n", "--nostore", action="store_true", dest="nostore", default=False,
+                      help="don't store the result of this attack in the internal database")
+    parser.add_option("-l", "--login", action="store", type="string", dest="login",
                       help="user login that will be bruteforced")
-    parser.add_option("-w", "--wordlist", action="store", type="string", dest="wordlist", default="passwords.txt",
+    parser.add_option("-w", "--wordlist", action="store", type="string", dest="wordlist",
                       help="specify a file with list of passwords")
+    parser.add_option("--history", action="store_true", dest="history", default=False,
+                      help="run the GUI part of this program to view info about previous attacks")
     (options, args) = parser.parse_args(argv[1:])
+
+    if options.history is True:
+        return (options, None, None)
+
+    if options.login is None:
+        parser.error("\"--login\" option is required")
+    if options.wordlist is None:
+        parser.error("\"--wordlist\" option is required")
 
     if len(args) != 2:
         parser.error("Invalid number of arguments")
@@ -24,5 +34,8 @@ def argparse(argv, portmap):
 
     if service not in portmap.keys():
         parser.error("Specified service is not supported")
+
+    if options.port is not None:
+        portmap[service] = options.port
 
     return (options, ip_addr, service)

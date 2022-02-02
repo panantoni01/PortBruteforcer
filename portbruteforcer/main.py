@@ -1,16 +1,18 @@
 import sys
 from argparser import argparse
 from sshattack import SSHTarget, SSHAttacker
+from dbGUI import Attack, init_database, start_GUI
+from datetime import datetime
 
 if __name__ == '__main__':
-    f = open('/dev/null', 'w')
-    sys.stderr = f
 
     portmap = {"ftp": 21, "ssh": 22, "telnet": 23}
     (options, ip_addr, service) = argparse(sys.argv, portmap)
 
-    if options.port is not None:
-        portmap[service] = options.port
+    if options.history is True:
+        session = init_database()
+        start_GUI(session)
+        sys.exit(0)
 
     target = SSHTarget(
         ip_addr,
@@ -18,6 +20,9 @@ if __name__ == '__main__':
         options.login,
         options.wordlist,
     )
+
+    f = open('/dev/null', 'w')
+    sys.stderr = f
 
     attackers = []
     for i in range(0, options.threads):
@@ -52,3 +57,18 @@ if __name__ == '__main__':
     print("Password: %s" % ("?" if not SSHAttacker.success else SSHAttacker.password))
     print("Total attempts: %d" % (sum(attacker.tries for attacker in attackers)))
     print("-=-=-=-=-=-=-=-=-=-=-=-=--==-=-=-=-")
+
+    if options.nostore is False:
+        attack = Attack(
+            end_time=datetime.now(),
+            successful=SSHAttacker.success,
+            ip=ip_addr,
+            service=service,
+            port=target.port,
+            login=target.login,
+            password=(None if not SSHAttacker.success else SSHAttacker.password),
+            total_tries=sum(attacker.tries for attacker in attackers)
+        )
+        session = init_database()
+        session.add(attack)
+        session.commit()
