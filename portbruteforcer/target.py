@@ -36,6 +36,7 @@ class Attacker(threading.Thread):
     def __init__(self, target: Target):
         self.target = target
         self.tries = 0
+        self.failed_conns = 0
         threading.Thread.__init__(self)
 
     def get_password(self):

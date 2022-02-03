@@ -14,18 +14,22 @@ class FTPAttacker(Attacker):
             ftpclient.quit()
         except ftplib.error_perm:
             self.tries += 1
+            self.failed_conns = 0
             print("[%s] Failed attempt against %s - user: %s, password: %s" %
                   (self.name, self.target.host, self.target.login, password))
             return True
         except OSError:
             print("[%s] Connection error - %s" % (self.name, self.target.host))
+            self.failed_conns += 1
             return False
         except Exception:
             print("[%s] Unknown exception while connecting to %s" %
                   (self.name, self.target.host))
+            self.failed_conns += 1
             return False
         else:
             self.tries += 1
+            self.failed_conns = 0
             FTPAttacker.finish = True
             FTPAttacker.password = password
             FTPAttacker.success = True

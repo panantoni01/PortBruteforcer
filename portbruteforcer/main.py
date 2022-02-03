@@ -39,7 +39,6 @@ if __name__ == '__main__':
         elif service == "ftp":
             attacker = FTPAttacker(target)
             AttackerClass = FTPAttacker
-
         attackers.append(attacker)
     for attacker in attackers:
         attacker.start()
@@ -48,6 +47,10 @@ if __name__ == '__main__':
         passw_counter = 0
         with open(target.wordlist) as passwords:
             while AttackerClass.finish is False:
+                # if no progress has been made -> host is probably down -> lets finish
+                if sum(attacker.failed_conns for attacker in attackers) >= 8*options.threads and \
+                        all(attacker.failed_conns != 0 for attacker in attackers):
+                    AttackerClass.finish = True
                 if target.queue_empty():
                     # fill the queue if it is empty and check for EOF
                     passw_put = target.queue_fill(passwords)

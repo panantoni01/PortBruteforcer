@@ -20,20 +20,25 @@ class SSHAttacker(Attacker):
                 allow_agent=False,
                 look_for_keys=False
             )
+
         except paramiko.AuthenticationException:
             self.tries += 1
+            self.failed_conns = 0
             print("[%s] Failed attempt against %s - user: %s, password: %s" %
                   (self.name, self.target.host, self.target.login, password))
             return True
         except paramiko.SSHException:
             print("[%s] Connection error - %s" % (self.name, self.target.host))
+            self.failed_conns += 1
             return False
         except Exception:
             print("[%s] Unknown exception while connecting to %s" %
                   (self.name, self.target.host))
+            self.failed_conns += 1
             return False
         else:
             self.tries += 1
+            self.failed_conns = 0
             SSHAttacker.finish = True
             SSHAttacker.password = password
             SSHAttacker.success = True
