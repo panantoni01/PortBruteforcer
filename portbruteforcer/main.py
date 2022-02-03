@@ -2,13 +2,14 @@ import sys
 from argparser import argparse
 from ssh_attack import SSHAttacker
 from telnet_attack import TelnetAttacker
+from ftp_attack import FTPAttacker
 from dbGUI import Attack, init_database, start_GUI
 from datetime import datetime
 from target import Target
 
 if __name__ == '__main__':
 
-    portmap = {"ssh": 22, "telnet": 23}
+    portmap = {"ftp": 21, "ssh": 22, "telnet": 23}
     (options, ip_addr, service) = argparse(sys.argv, portmap)
 
     if options.history is True:
@@ -35,6 +36,9 @@ if __name__ == '__main__':
         elif service == "telnet":
             attacker = TelnetAttacker(target)
             AttackerClass = TelnetAttacker
+        elif service == "ftp":
+            attacker = FTPAttacker(target)
+            AttackerClass = FTPAttacker
 
         attackers.append(attacker)
     for attacker in attackers:

