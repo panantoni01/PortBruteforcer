@@ -281,6 +281,20 @@
             <property name="margin_bottom">10</property>
             <property name="homogeneous">True</property>
             <child>
+              <object class="GtkButton" id="button_delete_all">
+                <property name="label" translatable="yes">Delete all</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_button_delete_all_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="button_details">
                 <property name="label" translatable="yes">Details</property>
                 <property name="name">button_details</property>
