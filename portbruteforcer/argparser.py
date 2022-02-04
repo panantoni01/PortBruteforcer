@@ -1,7 +1,18 @@
 from optparse import OptionParser
 
 
-def argparse(argv, portmap):
+def argparse(argv, portmap) -> (dict, str, str):
+    """
+    A function to parse command-line arguments and options.
+
+    :param argv: list of raw command-line arguments
+    :param portmap: dictionary, that contains service-to-port mapping
+    :type portmap: dict
+    :type argv: list
+
+    :return: tuple, containing parsed options, ip adress and a service to attack
+    """
+
     usage = f"Usage: {argv[0]} OPTIONS <ip_addr> <service>"
     parser = OptionParser(usage=usage)
     parser.add_option("-p", "--port", action="store", type="int", dest="port",
@@ -17,6 +28,8 @@ def argparse(argv, portmap):
     parser.add_option("--history", action="store_true", dest="history", default=False,
                       help="run the GUI part of this program to view info about previous attacks")
     (options, args) = parser.parse_args(argv[1:])
+
+    print(options)
 
     if options.history is True:
         return (options, None, None)
@@ -35,6 +48,7 @@ def argparse(argv, portmap):
     if service not in portmap.keys():
         parser.error("Specified service is not supported")
 
+    # change default service port to the user-specified one
     if options.port is not None:
         portmap[service] = options.port
 

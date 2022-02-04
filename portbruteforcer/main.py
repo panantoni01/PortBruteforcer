@@ -1,3 +1,11 @@
+"""
+Name: portbruteforcer
+Author: Antoni Pokusiński
+Date Created: 04-02-2022
+
+Simple multi-threaded tool for brute-forcing network services
+"""
+
 import sys
 from argparser import argparse
 from ssh_attack import SSHAttacker
@@ -22,7 +30,6 @@ def main():
         ip_addr,
         portmap[service],
         options.login,
-        options.wordlist,
         options.threads
     )
 
@@ -46,7 +53,7 @@ def main():
 
     try:
         passw_counter = 0
-        with open(target.wordlist) as passwords:
+        with open(options.wordlist) as passwords:
             while AttackerClass.finish is False:
                 # if no progress has been made -> host is probably down -> lets finish
                 if sum(attacker.failed_conns for attacker in attackers) >= 8*options.threads and \

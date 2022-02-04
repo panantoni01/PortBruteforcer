@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.0",
     author="Antoni Pokusiński",
     author_email="apokusinski@o2.pl",
-    description="Simple multi-threaded tool for brute-forcing services",
+    description="Simple multi-threaded tool for brute-forcing network services",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/panantoni01/PortBruteforcer",
