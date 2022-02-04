@@ -29,8 +29,6 @@ def argparse(argv, portmap) -> (dict, str, str):
                       help="run the GUI part of this program to view info about previous attacks")
     (options, args) = parser.parse_args(argv[1:])
 
-    print(options)
-
     if options.history is True:
         return (options, None, None)
 

@@ -28,7 +28,7 @@ class Target:
     def queue_full(self) -> bool:
         return self.passwords.full()
 
-    def queue_fill(self, file) -> int:
+    def queue_fill(self, file) -> (int, bool):
         """
         Fill the password queue with new passwords from file
 
@@ -39,11 +39,11 @@ class Target:
         while not self.queue_full():
             password = file.readline().rstrip()
             if len(password) == 0:
-                return None
+                return (counter, False)
             else:
                 self.passwords.put(password)
                 counter += 1
-        return counter
+        return (counter, True)
 
 
 class Attacker(threading.Thread):

@@ -1,11 +1,3 @@
-"""
-Name: portbruteforcer
-Author: Antoni Pokusiński
-Date Created: 04-02-2022
-
-Simple multi-threaded tool for brute-forcing network services
-"""
-
 import sys
 from argparser import argparse
 from ssh_attack import SSHAttacker
@@ -61,8 +53,8 @@ def main():
                     AttackerClass.finish = True
                 if target.queue_empty():
                     # fill the queue if it is empty and check for EOF
-                    passw_put = target.queue_fill(passwords)
-                    if passw_put is None:
+                    (passw_put, no_eof) = target.queue_fill(passwords)
+                    if no_eof is False:
                         break
                     else:
                         passw_counter += passw_put
