@@ -27,6 +27,7 @@ class Attack(Base):
 
 
 def init_database():
+    """Initialize database and return session binded with it"""
     engine = create_engine('sqlite:///attacks.db', echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)

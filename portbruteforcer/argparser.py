@@ -1,7 +1,8 @@
 from optparse import OptionParser
+from target import Target
 
 
-def argparse(argv, portmap) -> (dict, str, str):
+def argparse(argv, portmap) -> (dict, Target):
     """
     A function to parse command-line arguments and options.
 
@@ -10,7 +11,7 @@ def argparse(argv, portmap) -> (dict, str, str):
     :type portmap: dict
     :type argv: list
 
-    :return: tuple, containing parsed options, ip adress and a service to attack
+    :return: parsed options and target object
     """
 
     usage = f"Usage: {argv[0]} OPTIONS <ip_addr> <service>"
@@ -30,7 +31,7 @@ def argparse(argv, portmap) -> (dict, str, str):
     (options, args) = parser.parse_args(argv[1:])
 
     if options.history is True:
-        return (options, None, None)
+        return (options, None)
 
     if options.login is None:
         parser.error("\"--login\" option is required")
@@ -50,4 +51,12 @@ def argparse(argv, portmap) -> (dict, str, str):
     if options.port is not None:
         portmap[service] = options.port
 
-    return (options, ip_addr, service)
+    target = Target(
+        ip_addr,
+        service,
+        portmap[service],
+        options.login,
+        options.threads
+    )
+
+    return (options, target)
