@@ -7,7 +7,8 @@ from dbGUI import Attack, init_database, start_GUI
 from datetime import datetime
 from target import Target
 
-if __name__ == '__main__':
+
+def main():
 
     portmap = {"ftp": 21, "ssh": 22, "telnet": 23}
     (options, ip_addr, service) = argparse(sys.argv, portmap)
