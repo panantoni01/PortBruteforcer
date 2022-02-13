@@ -13,11 +13,7 @@ class FTPAttacker(Attacker):
 
     def try_connect(self):
         """
-        Try to connect to the host with given password.
-
-        :param password: the password that we try to authenticate with
-        :type password: str
-        :return: True if succeed/failed to authenticate, False if connection error occured
+        Try to connect to the host using self.curr_password
         """
         try:
             ftpclient = ftplib.FTP()

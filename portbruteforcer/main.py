@@ -1,5 +1,6 @@
 import sys
 from argparser import argparse
+from target import Target
 from ssh_attack import SSHAttacker
 from telnet_attack import TelnetAttacker
 from ftp_attack import FTPAttacker
@@ -39,13 +40,13 @@ def main():
         with open(options.wordlist) as passwords:
             while AttackerClass.finish is False:
                 # if no progress has been made -> host is probably down -> lets finish
-                if AttackerClass.is_host_down(attackers, 8*options.threads):
+                if Target.is_target_down(attackers, 8*options.threads):
                     AttackerClass.finish = True
                 # fill the queue if it is empty and check for EOF
                 if target.queue_empty():
-                    (passw_put, no_eof) = target.queue_fill(passwords)
+                    (passw_put, eof) = target.queue_fill(passwords)
                     passw_counter += passw_put
-                    if no_eof is False:
+                    if eof is True:
                         break
             # wait for other threads to try all passwords
             while passw_counter != (sum(attacker.tries for attacker in attackers)) and AttackerClass.finish is False:
@@ -67,6 +68,7 @@ def main():
     print("Total attempts: %d" % (sum(attacker.tries for attacker in attackers)))
     print("-=-=-=-=-=-=-=-=-=-=-=-=--==-=-=-=-")
 
+    # add result to database unless user decided otherwise
     if options.nostore is False:
         attack = Attack(
             end_time=datetime.now(),

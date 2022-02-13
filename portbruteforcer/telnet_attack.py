@@ -13,12 +13,10 @@ class TelnetAttacker(Attacker):
 
     def try_connect(self, tn) -> bool:
         """
-        Try to connect to the host with given Telnet object and password
+        Try to connect to the host with given Telnet object using self.curr_password
 
         :param tn: Telnet object, that has already established connection with the host
-        :param password: the password that we try to authenticate with
         :type tn: Telnet
-        :type password: str
         :return: True if succeed/failed to authenticate, False if connection error occured
         """
         try:

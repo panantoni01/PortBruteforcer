@@ -82,10 +82,10 @@ class GTKHandler:
                        "password": builder.get_object("label_password"),
                        "tries": builder.get_object("label_tries")}
 
-        self.listbox_books = builder.get_object("listbox_books")
+        self.listbox_attacks = builder.get_object("listbox_attacks")
         attacks = self.session.query(Attack).all()
         for attack in attacks:
-            self.listbox_books.add(create_row(attack))
+            self.listbox_attacks.add(create_row(attack))
 
     def on_button_back_clicked(self, button):
         self.widget_hide(self.window_details)
@@ -94,7 +94,7 @@ class GTKHandler:
         for label in self.labels.values():
             label.set_text("")
 
-        row = self.listbox_books.get_selected_row()
+        row = self.listbox_attacks.get_selected_row()
         if row is None:
             return
 
@@ -112,7 +112,7 @@ class GTKHandler:
         self.window_details.show_all()
 
     def on_button_delete_clicked(self, button):
-        row = self.listbox_books.get_selected_row()
+        row = self.listbox_attacks.get_selected_row()
         if row is None:
             return
 
@@ -120,16 +120,16 @@ class GTKHandler:
         self.session.query(Attack).filter(Attack.id == attack.id).delete(synchronize_session=False)
         self.session.commit()
 
-        self.listbox_books.remove(row)
+        self.listbox_attacks.remove(row)
         self.window_main.show_all()
 
     def on_button_delete_all_clicked(self, button):
         self.session.query(Attack).delete(synchronize_session=False)
         self.session.commit()
 
-        rows = self.listbox_books.get_children()
+        rows = self.listbox_attacks.get_children()
         for row in rows:
-            self.listbox_books.remove(row)
+            self.listbox_attacks.remove(row)
         self.window_main.show_all()
 
     def widget_hide(self, widget, data=None):
